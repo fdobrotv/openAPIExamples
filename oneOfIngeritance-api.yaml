@@ -1,0 +1,74 @@
+openapi: 3.0.1
+info:
+  version: 1.0.0
+  title: Working oneOf example
+  license:
+    name: MIT
+servers:
+  - url: http://api.fdobrotv.com/v1
+paths:
+  /person:
+    post:
+      operationId: createPerson
+      requestBody:
+        $ref: '#/components/requestBodies/CreatePerson'
+
+      responses:
+        '201':
+          $ref: '#/components/responses/CreatedPerson'
+
+components:
+  requestBodies:
+    CreatePerson:
+      description: Event input body
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Person"
+
+  responses:
+    CreatedPerson:
+      description: Event successfully created
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Person"
+
+  schemas:
+    Person:
+      type: object
+      discriminator:
+        propertyName: type
+        mapping:
+          Parent: Parent
+          Child: Child
+      required:
+        - type
+      properties:
+        type:
+          type: string
+        lastName:
+          type: string
+        firstName:
+          type: string
+
+    Parent:
+      description: A representation of an ScanningEvent
+      allOf:
+        - $ref: '#/components/schemas/Person'
+        - type: object
+          properties:
+            children:
+              type: array
+              items:
+                $ref: "#/components/schemas/Child"
+
+    Child:
+      description: A representation of a child
+      allOf:
+        - $ref: '#/components/schemas/Person'
+        - type: object
+          properties:
+            age:
+              type: integer
+              format: int32
